@@ -12,7 +12,7 @@ fn main() {
     let listener = TcpListener::bind("0.0.0.0:8080").unwrap();
     let pool = ThreadPool::new(4);
 
-    for stream in listener.incoming() {
+    for stream in listener.incoming().take(8) { //Shuts down gracefully after 8 requests has been processed.
         let stream = stream.unwrap();
 
         pool.execute(|| {
@@ -137,8 +137,6 @@ fn handle_connection(mut stream: TcpStream) {
     let get = b"GET / HTTP/1.1\r\n";
     let post = b"POST / HTTP/1.1\r\n";
     let sleep = b"GET /sleep HTTP/1.1\r\n";
-    
-    //let callerInfo = stream.
     
     let (status_line, filename) = if buffer.starts_with(get) {
         ("HTTP/1.1 200 OK\r\n\r\n", "hello.html")
